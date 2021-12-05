@@ -116,6 +116,9 @@ fn write_irqn_enum(output: &str, irq_vector: Vec<IRQ>) {
 
     out_file.write_all(b"#ifndef STM32F401_IRQN_H\r\n").expect("Unable to write data");
     out_file.write_all(b"#define STM32F401_IRQN_H\r\n\r\n").expect("Unable to write data");
+
+    out_file.write_all(b"#include <cstdint>\r\n\r\n").expect("Unable to write data");
+
     out_file.write_all(b"enum class Stm32IRQn : int16_t {\r\n").expect("Unable to write data");
 
     out_file.write_all(b"  NonMaskableInt_IRQn = -14,\r\n").expect("Unable to write data");
