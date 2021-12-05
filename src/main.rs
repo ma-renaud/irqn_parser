@@ -20,10 +20,10 @@ fn main() {
             .about("Sets the input file to use")
             .required(true)
             .index(1))
-        .arg(Arg::new("output")
+        .arg(Arg::new("OUTPUT")
             .short('o')
             .long("output")
-            .value_name("FILE")
+            .value_name("OUTPUT")
             .about("Sets a custom output file")
             .takes_value(true))
         .get_matches();
@@ -33,26 +33,33 @@ fn main() {
         let path = Path::new(&file);
         if path.exists() {
             let mut output = String::from("");
-            if matches.is_present("FILE") {
-                output = matches.value_of("FILE").unwrap().to_owned();
+            if matches.is_present("OUTPUT") {
+                output = matches.value_of("OUTPUT").unwrap().to_owned();
+                let output_path = Path::new(&output);
+                if !output_path.parent().unwrap().exists() {
+                    println!("Invalid output file path: {}", output);
+                    output = String::from("");
+                }
             } else {
                 if let Some(output_path) = path.parent() {
                     let tmp_path = output_path.join("stm32f401_irqn.h");
                     output.push_str(tmp_path.to_str().unwrap());
                 } else {
-                    panic!("Invalid input file path");
+                    println!("Invalid input file path: {}", file);
                 }
             }
 
-            let text = fs::read_to_string(file)
-                .expect("Something went wrong reading the file");
+            if !output.is_empty() {
+                let text = fs::read_to_string(file)
+                    .expect("Something went wrong reading the file");
 
-            let mut irq_vector = irq_vector_from_enum(&text);
-            irq_vector.reverse();
-            write_irqn_enum(&output, irq_vector);
-
+                let mut irq_vector = irq_vector_from_enum(&text);
+                irq_vector.reverse();
+                write_irqn_enum(&output, irq_vector);
+                println!("File created: {}", output);
+            }
         } else {
-            panic!("Invalid file");
+            println!("Invalid input file path: {}", file);
         }
     }
 }
